@@ -11,8 +11,11 @@ class HintjensBlog(BasicNewsRecipe):
 	url = 'http://hintjens.com/'
 	cover_url = 'http://hintjens.wdfiles.com/local--files/nav:side/culture.jpg'
 	reverse_article_order = True
-	delay = 1	# TODO: remove limit
 	auto_cleanup = True
+
+	# TODO: remove limits
+	delay = 1
+	max_articles_per_feed = 5
 
 	ARTICLES_SELECTOR = CSSSelector('#page-content .list-pages-item')
 	ARTICLE_TITLE_SELECTOR = CSSSelector('strong a')
