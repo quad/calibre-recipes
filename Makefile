@@ -1,5 +1,7 @@
-DEBUG = -v -d input/
 BOOKS = hintjens-blog
+
+DEBUG_DIR = debug
+DEBUG = -v -d $(DEBUG_DIR)
 
 EPUBS = $(addsuffix .epub, $(BOOKS))
 all: $(EPUBS)
@@ -9,4 +11,4 @@ all: $(EPUBS)
 
 .PHONY: clean
 clean: 
-	rm -f $(EPUBS)
+	rm -f $(EPUBS) $(DEBUG_DIR)
