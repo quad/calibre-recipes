@@ -9,6 +9,7 @@ from lxml.cssselect import CSSSelector
 class HintjensBlog(BasicNewsRecipe):
 	title = 'Moving Pieces'
 	url = 'http://hintjens.com/'
+	reverse_article_order = True
 	delay = 1	# TODO: remove limit
 	auto_cleanup = True
 
