@@ -48,3 +48,7 @@ class HintjensBlog(BasicNewsRecipe):
 			'description': '',
 			'content': '',
 		}
+
+	def postprocess_book(self, oeb, opts, log):
+		index_id = oeb.manifest.hrefs['index.html'].id
+		oeb.manifest.remove(index_id)
