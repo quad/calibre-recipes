@@ -1,5 +1,6 @@
-language: python
-sudo: false
-addons.apt.packages:
-  - calibre
+addons:
+  apt:
+    packages:
+    - calibre
+language: generic
 script: make
