@@ -27,8 +27,7 @@ class HintjensBlog(BasicNewsRecipe):
 		index_tree = self.index_to_soup(self.url, as_tree=True)
 		articles_tree = self.ARTICLES_SELECTOR(index_tree)
 		articles = [self._parse_article(t) for t in articles_tree]
-		# TODO: remove limit
-		return [(self.title, articles[:5])]
+		return [(self.title, articles)]
 
 	def _parse_article(self, tree):
 		title_tag = self.ARTICLE_TITLE_SELECTOR(tree)[0]
