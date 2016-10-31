@@ -12,8 +12,8 @@ from lxml.html.builder import BODY, DIV, H2, HEAD, HTML, TITLE
 
 class EmptyNavbar(templates.Template):
     def _generate(self, bottom, feed, art, number_of_articles_in_feed,
-                 two_levels, url, __appname__, prefix='', center=True,
-                 extra_css=None, style=None):
+                  two_levels, url, __appname__, prefix='', center=True,
+                  extra_css=None, style=None):
         self.root = DIV()
 
 
@@ -62,13 +62,12 @@ class HintjensBlog(BasicNewsRecipe):
 
     def _parse_article(self, tree):
         title_tag = self.ARTICLE_TITLE_SELECTOR(tree)[0]
-
         url = title_tag.get('href')
 
         timestamp_tag = self.ARTICLE_TIMESTAMP_SELECTOR(tree)[0]
         timestamp = float([cn.lstrip('time_')
-                     for cn in timestamp_tag.get('class').split()
-                     if cn.startswith('time_')][0])
+                           for cn in timestamp_tag.get('class').split()
+                           if cn.startswith('time_')][0])
 
         return {
                 'title': title_tag.text,
