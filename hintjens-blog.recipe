@@ -1,54 +1,55 @@
 #!/usr/bin/env python2
 
-import datetime
 import urlparse
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import datetime as dt
 from lxml.cssselect import CSSSelector
 
+
 class HintjensBlog(BasicNewsRecipe):
-	title = 'Moving Pieces'
-	url = 'http://hintjens.com/'
-	cover_url = 'http://hintjens.wdfiles.com/local--files/nav:side/culture.jpg'
-	reverse_article_order = True
-	auto_cleanup = True
+    title = 'Moving Pieces'
+    url = 'http://hintjens.com/'
+    cover_url = 'http://hintjens.wdfiles.com/local--files/nav:side/culture.jpg'
+    reverse_article_order = True
+    auto_cleanup = True
 
-	# TODO: remove limits
-	delay = 1
-	max_articles_per_feed = 5
+    # TODO: remove limits
+    delay = 1
+    max_articles_per_feed = 5
 
-	ARTICLES_SELECTOR = CSSSelector('#page-content .list-pages-item')
-	ARTICLE_TITLE_SELECTOR = CSSSelector('strong a')
-	ARTICLE_TIMESTAMP_SELECTOR = CSSSelector('.odate')
+    ARTICLES_SELECTOR = CSSSelector('#page-content .list-pages-item')
+    ARTICLE_TITLE_SELECTOR = CSSSelector('strong a')
+    ARTICLE_TIMESTAMP_SELECTOR = CSSSelector('.odate')
 
-	PRINT_FRIENDLY_URL = 'http://hintjens.com/printer--friendly/'
+    PRINT_FRIENDLY_URL = 'http://hintjens.com/printer--friendly/'
 
-	def parse_index(self):
-		index_tree = self.index_to_soup(self.url, as_tree=True)
-		articles_tree = self.ARTICLES_SELECTOR(index_tree)
-		articles = [self._parse_article(t) for t in articles_tree]
-		return [(self.title, articles)]
+    def parse_index(self):
+        index_tree = self.index_to_soup(self.url, as_tree=True)
+        articles_tree = self.ARTICLES_SELECTOR(index_tree)
+        articles = [self._parse_article(t) for t in articles_tree]
+        return [(self.title, articles)]
 
-	def _parse_article(self, tree):
-		title_tag = self.ARTICLE_TITLE_SELECTOR(tree)[0]
+    def _parse_article(self, tree):
+        title_tag = self.ARTICLE_TITLE_SELECTOR(tree)[0]
 
-		url = title_tag.get('href')
-		readable_url = urlparse.urljoin(self.PRINT_FRIENDLY_URL, url[1:])
+        url = title_tag.get('href')
+        readable_url = urlparse.urljoin(self.PRINT_FRIENDLY_URL, url[1:])
 
-		timestamp_tag = self.ARTICLE_TIMESTAMP_SELECTOR(tree)[0]
-		timestamp = [cn.lstrip('time_')
-			for cn in timestamp_tag.get('class').split()
-			if cn.startswith('time_')][0]
-		isodate = datetime.datetime.utcfromtimestamp(float(timestamp)).isoformat()
+        timestamp_tag = self.ARTICLE_TIMESTAMP_SELECTOR(tree)[0]
+        timestamp = [cn.lstrip('time_')
+                     for cn in timestamp_tag.get('class').split()
+                     if cn.startswith('time_')][0]
+        isodate = dt.utcfromtimestamp(float(timestamp)).isoformat()
 
-		return {
-			'title': title_tag.text,
-			'url': readable_url,
-			'date': isodate,
-			'description': '',
-			'content': '',
-		}
+        return {
+                'title': title_tag.text,
+                'url': readable_url,
+                'date': isodate,
+                'description': '',
+                'content': '',
+        }
 
-	def postprocess_book(self, oeb, opts, log):
-		index_id = oeb.manifest.hrefs['index.html'].id
-		oeb.manifest.remove(index_id)
+    def postprocess_book(self, oeb, opts, log):
+        index_id = oeb.manifest.hrefs['index.html'].id
+        oeb.manifest.remove(index_id)
