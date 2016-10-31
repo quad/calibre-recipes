@@ -25,7 +25,19 @@ class HintjensBlog(BasicNewsRecipe):
 
     # TODO: remove limits
     delay = 1
-    max_articles_per_feed = 5
+    max_articles_per_feed = 35
+
+    blacklist_urls = [
+            # The Psychopath Code
+            '/blog:78',
+            '/blog:82',
+            '/blog:87',
+            '/blog:88',
+            '/blog:89',
+            '/blog:90',
+            '/blog:91',
+            '/blog:92',
+    ]
 
     ARTICLES_SELECTOR = CSSSelector('#page-content .list-pages-item')
     ARTICLE_TITLE_SELECTOR = CSSSelector('strong a')
@@ -42,13 +54,17 @@ class HintjensBlog(BasicNewsRecipe):
         index_tree = self.index_to_soup(self.url, as_tree=True)
         articles_tree = self.ARTICLES_SELECTOR(index_tree)
         articles = [self._parse_article(t) for t in articles_tree]
-        return [(self.title, articles)]
+        ok_articles = [a for a in articles
+                       if a['url'] not in self.blacklist_urls]
+        return [(self.title, ok_articles)]
+
+    def print_version(self, url):
+        return urlparse.urljoin(self.PRINT_FRIENDLY_URL, url[1:])
 
     def _parse_article(self, tree):
         title_tag = self.ARTICLE_TITLE_SELECTOR(tree)[0]
 
         url = title_tag.get('href')
-        readable_url = urlparse.urljoin(self.PRINT_FRIENDLY_URL, url[1:])
 
         timestamp_tag = self.ARTICLE_TIMESTAMP_SELECTOR(tree)[0]
         timestamp = [cn.lstrip('time_')
@@ -58,7 +74,7 @@ class HintjensBlog(BasicNewsRecipe):
 
         return {
                 'title': title_tag.text,
-                'url': readable_url,
+                'url': url,
                 'date': isodate,
                 'description': '',
                 'content': '',
