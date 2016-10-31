@@ -2,9 +2,18 @@
 
 import urlparse
 
+from calibre.web.feeds import templates
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime as dt
 from lxml.cssselect import CSSSelector
+from lxml.html.builder import DIV
+
+
+class EmptyNavbar(templates.Template):
+    def _generate(self, bottom, feed, art, number_of_articles_in_feed,
+                 two_levels, url, __appname__, prefix='', center=True,
+                 extra_css=None, style=None):
+        self.root = DIV()
 
 
 class HintjensBlog(BasicNewsRecipe):
@@ -23,6 +32,11 @@ class HintjensBlog(BasicNewsRecipe):
     ARTICLE_TIMESTAMP_SELECTOR = CSSSelector('.odate')
 
     PRINT_FRIENDLY_URL = 'http://hintjens.com/printer--friendly/'
+
+    def __init__(self, options, log, progress_reporter):
+        BasicNewsRecipe.__init__(self, options, log, progress_reporter)
+
+        self.navbar = EmptyNavbar()
 
     def parse_index(self):
         index_tree = self.index_to_soup(self.url, as_tree=True)
