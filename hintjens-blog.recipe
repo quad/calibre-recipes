@@ -23,10 +23,6 @@ class HintjensBlog(BasicNewsRecipe):
     cover_url = 'http://hintjens.wdfiles.com/local--files/nav:side/culture.jpg'
     reverse_article_order = True
 
-    # TODO: remove limits
-    delay = 1
-    max_articles_per_feed = 35
-
     blacklist_urls = [
             # The Psychopath Code
             '/blog:78',
@@ -38,6 +34,9 @@ class HintjensBlog(BasicNewsRecipe):
             '/blog:91',
             '/blog:92',
     ]
+
+    oldest_article = 365 * 1000
+    max_articles_per_feed = 500
 
     ARTICLES_SELECTOR = CSSSelector('#page-content .list-pages-item')
     ARTICLE_TITLE_SELECTOR = CSSSelector('strong a')
