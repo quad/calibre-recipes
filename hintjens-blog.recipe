@@ -64,6 +64,10 @@ class HintjensBlog(BasicNewsRecipe):
                 'content': '',
         }
 
+    def preprocess_html(self, soup):
+        soup.find('span', 'printuser avatarhover').parent.extract()
+        return soup
+
     def postprocess_book(self, oeb, opts, log):
         index_id = oeb.manifest.hrefs['index.html'].id
         oeb.manifest.remove(index_id)
