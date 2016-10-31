@@ -2,10 +2,12 @@
 
 import urlparse
 
+from calibre.ebooks.readability import readability
 from calibre.web.feeds import templates
 from calibre.web.feeds.news import BasicNewsRecipe
 from lxml.cssselect import CSSSelector
-from lxml.html.builder import DIV
+from lxml.html import document_fromstring, fragment_fromstring, tostring
+from lxml.html.builder import BODY, DIV, H2, HEAD, HTML, TITLE
 
 
 class EmptyNavbar(templates.Template):
@@ -20,7 +22,6 @@ class HintjensBlog(BasicNewsRecipe):
     url = 'http://hintjens.com/'
     cover_url = 'http://hintjens.wdfiles.com/local--files/nav:side/culture.jpg'
     reverse_article_order = True
-    auto_cleanup = True
 
     # TODO: remove limits
     delay = 1
@@ -78,9 +79,26 @@ class HintjensBlog(BasicNewsRecipe):
                 'content': '',
         }
 
-    def preprocess_html(self, soup):
-        soup.find('span', 'printuser avatarhover').parent.extract()
-        return soup
+    def preprocess_raw_html(self, raw_html, url):
+        raw = document_fromstring(raw_html)
+
+        title = CSSSelector('#page-title')(raw)[0].text
+
+        article = CSSSelector('#page-content')(raw)[0]
+
+        CSSSelector('div.comments-box')(article)[0].clear()
+        CSSSelector('div.page-rate-widget')(article)[0].getparent().clear()
+        CSSSelector('span.avatarhover')(article)[0].getparent().clear()
+        CSSSelector('div.list-pages-box')(article)[0].getparent().getparent().clear()
+        cleaned = tostring(article, encoding=unicode)
+
+        doc = readability.Document(cleaned, self.log, url=url,
+                                   keep_elements=self.auto_cleanup_keep)
+        readable = fragment_fromstring(doc.summary())
+
+        root = HTML(HEAD(TITLE(title)),
+                    BODY(H2(title), readable))
+        return tostring(root, encoding=unicode)
 
     def postprocess_book(self, oeb, opts, log):
         index_id = oeb.manifest.hrefs['index.html'].id
