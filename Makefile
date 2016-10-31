@@ -11,4 +11,5 @@ all: $(EPUBS)
 
 .PHONY: clean
 clean: 
-	rm -f $(EPUBS) $(DEBUG_DIR)
+	rm -f $(EPUBS)
+	rm -rf $(DEBUG_DIR)
