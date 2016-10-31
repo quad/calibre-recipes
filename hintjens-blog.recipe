@@ -4,7 +4,6 @@ import urlparse
 
 from calibre.web.feeds import templates
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import datetime as dt
 from lxml.cssselect import CSSSelector
 from lxml.html.builder import DIV
 
@@ -67,15 +66,14 @@ class HintjensBlog(BasicNewsRecipe):
         url = title_tag.get('href')
 
         timestamp_tag = self.ARTICLE_TIMESTAMP_SELECTOR(tree)[0]
-        timestamp = [cn.lstrip('time_')
+        timestamp = float([cn.lstrip('time_')
                      for cn in timestamp_tag.get('class').split()
-                     if cn.startswith('time_')][0]
-        isodate = dt.utcfromtimestamp(float(timestamp)).isoformat()
+                     if cn.startswith('time_')][0])
 
         return {
                 'title': title_tag.text,
                 'url': url,
-                'date': isodate,
+                'timestamp': timestamp,
                 'description': '',
                 'content': '',
         }
