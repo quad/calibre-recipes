@@ -1,5 +1,5 @@
+before_install:
+- curl -O https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py
+- sudo python linux-installer.py
 language: python
-sudo: false
-addons.apt.packages:
-  - calibre
 script: make
