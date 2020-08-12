@@ -1,4 +1,4 @@
-BOOKS = hintjens-blog
+BOOKS = hintjens-blog HTBC
 
 DEBUG_DIR = debug
 DEBUG = -v -d $(DEBUG_DIR)

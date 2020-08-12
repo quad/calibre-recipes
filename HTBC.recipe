@@ -1,0 +1,67 @@
+from calibre.web.feeds import templates
+from calibre.web.feeds.news import BasicNewsRecipe
+from lxml.html.builder import DIV
+from urlparse import urljoin, urlparse
+
+
+class EmptyNavbar(templates.Template):
+    def _generate(self, bottom, feed, art, number_of_articles_in_feed,
+                  two_levels, url, __appname__, prefix='', center=True,
+                  extra_css=None, style=None):
+        self.root = DIV()
+
+
+class HowTaiwanBecameChinese(BasicNewsRecipe):
+    title = 'How Taiwan Became Chinese'
+    cover_url = 'http://www.gutenberg-e.org/andrade/images/cover/genre.deerhuntCb.jpg'
+    preprocess_regexps = [
+        # TODO: fix index links losing their fragments
+        (re.compile(r'<span id="([^"]+)" class="pgrphNumber">\d+</span>\s+<p>', re.IGNORECASE),
+        lambda match: '<p id="%s">' % match.groups())
+    ]
+    remove_tags = [
+      {'name': 'a', 'attrs': {'class': 'toplnk'}},
+      {'name': 'div', 'attrs': {'class': 'footer'}},
+      {'name': 'a', 'attrs': {'class': 'cmmntlink'}},   # TODO: fix ugly () that remains
+    ]
+    remove_tags_before = {'name': 'h1', 'attrs': {'id': 'chapNum'}}
+    remove_tags_after = {'name': 'div', 'attrs': {'class': 'chapBody'}}
+    resolve_internal_links = True
+    handle_gzip = True
+
+    INDEX = 'http://www.gutenberg-e.org/andrade/'
+    DATE = '2006'
+
+    BLACKLIST_HREFS = [
+      'http://www.gutenberg-e.org/',
+      'http://www.columbia.edu/cu/cup/',
+    ]
+
+
+    def __init__(self, options, log, progress_reporter):
+        BasicNewsRecipe.__init__(self, options, log, progress_reporter)
+
+        self.navbar = EmptyNavbar()
+
+    def parse_index(self):
+        index_tree = self.index_to_soup(self.INDEX)
+        toc_tree = index_tree.find('div', id='Nav')
+        articles = [self._parse_article(t) for t in toc_tree.findAll('a')]
+        ok_articles = [a for a in articles if a['url'] not in self.BLACKLIST_HREFS]
+        return [(self.title, ok_articles)]
+
+    def _parse_article(self, a_tag):
+        return {
+                'title': a_tag.text,
+                'url': a_tag.get('href'),
+                'date': '',
+                'description': '',
+                'content': '',
+        }
+
+    def print_version(self, url):
+        return urljoin(self.INDEX, url)
+
+    def postprocess_book(self, oeb, opts, log):
+        index_id = oeb.manifest.hrefs['index.html'].id
+        oeb.manifest.remove(index_id)
